@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    
+</head>
+<body>
+    <h2>Checkout Page</h2>
+    <div id="checkoutMessage"></div>
+    
+    <script src="script.js"></script>
+</body>
+<script>
+    // Login Function
+async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', data.name);
+        alert('Login successful');
+        window.location.href = 'index.html';
+    } else {
+        alert(data.error);
+    }
+}
+
+// Display user name in navbar
+window.onload = () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+        document.getElementById('loginLink').innerText = `Welcome, ${user}`;
+    }
+};
+
+// Checkout Function
+async function checkout() {
+    const token = localStorage.getItem('token');
+
+    const res = await fetch('/api/checkout', {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    const messageDiv = document.getElementById('checkoutMessage');
+    messageDiv.textContent = data.message || 'Checkout failed';
+}
+
+</script>
+</html>
